@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-agent_service}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/info"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # Volume mount of development-only credentials since compose watch doesn't sync ignored files and doesn't do initial sync when the service starts
+    volumes:
+      - ./privatecredentials:/privatecredentials
+    develop:
+      watch:
+        - path: apps/backend/src/
+          action: sync+restart
+          target: apps/backend/src/
+        - path: libs/shared/src/
+          action: sync+restart
+          target: libs/shared/src/
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    ports:
+      - "8501:8501"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/healthz"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - AGENT_URL=http://backend:8080
+    develop:
+      watch:
+        - path: apps/frontend/src/
+          action: sync+restart
+          target: apps/frontend/src/
+        - path: libs/shared/src/
+          action: sync+restart
+          target: libs/shared/src/
+volumes:
+  postgres_data:

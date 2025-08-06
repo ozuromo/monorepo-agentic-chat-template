@@ -1,0 +1,38 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Arthur D. Delevedove", email = "arthurdorigueto@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "shared",
+    "fastapi[standard]>=0.116.1",
+    "langchain>=0.3.27",
+    "langfuse>=3.2.1",
+    "langgraph>=0.6.2",
+    "langgraph-checkpoint-mongodb>=0.1.4",
+    "langgraph-checkpoint-postgres>=2.0.23",
+    "langgraph-checkpoint-sqlite>=2.0.11",
+    "psycopg[binary,pool]>=3.2.9",
+]
+
+[dependency-groups]
+dev = [
+    "poethepoet>0",
+    "pytest>0",
+    "ruff>0",
+]
+
+[project.scripts]
+run_agent = "backend.run_agent:main"
+run_api = "backend.run_api:main"
+
+[tool.uv.sources]
+shared = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

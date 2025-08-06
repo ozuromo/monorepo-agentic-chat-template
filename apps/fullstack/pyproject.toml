@@ -1,0 +1,30 @@
+[project]
+name = "fullstack"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Arthur D. Delevedove", email = "arthurdorigueto@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "backend",
+    "frontend",
+]
+
+[dependency-groups]
+dev = [
+    "poethepoet>0",
+    "pytest>0",
+    "ruff>0",
+]
+
+[project.scripts]
+
+[tool.uv.sources]
+backend = { workspace = true }
+frontend = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
