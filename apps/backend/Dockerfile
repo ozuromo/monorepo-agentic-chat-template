@@ -16,5 +16,4 @@ RUN uv sync --frozen --no-install-workspace --package=backend
 COPY . .
 RUN uv sync --frozen --package=backend
 
-# use entrypoint from pyproject.toml
-CMD ["uv", "run", "run_api"]
+CMD ["/workspace/.venv/bin/python", "/workspace/apps/backend/src/backend/run_api.py"]

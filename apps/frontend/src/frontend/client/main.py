@@ -72,7 +72,9 @@ class AgentClient:
                 self.retrieve_info()
             agent_keys = [a.key for a in self.info.agents]  # type: ignore[union-attr]
             if agent not in agent_keys:
-                raise AgentClientError(f"Agent {agent} not found in available agents: {', '.join(agent_keys)}")
+                raise AgentClientError(
+                    f"Agent {agent} not found in available agents: {', '.join(agent_keys)}"
+                )
         self.agent = agent
 
     async def ainvoke(
@@ -84,7 +86,9 @@ class AgentClient:
         agent_config: dict[str, Any] | None = None,
     ) -> AgentOutput:
         if not self.agent:
-            raise AgentClientError("No agent selected. Use update_agent() to select an agent.")
+            raise AgentClientError(
+                "No agent selected. Use update_agent() to select an agent."
+            )
         request = UserInput(message=message)
         if thread_id:
             request.thread_id = thread_id
@@ -117,7 +121,9 @@ class AgentClient:
         agent_config: dict[str, Any] | None = None,
     ) -> AgentOutput:
         if not self.agent:
-            raise AgentClientError("No agent selected. Use update_agent() to select an agent.")
+            raise AgentClientError(
+                "No agent selected. Use update_agent() to select an agent."
+            )
         request = UserInput(message=message)
         if thread_id:
             request.thread_id = thread_id

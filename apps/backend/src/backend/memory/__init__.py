@@ -10,7 +10,11 @@ from backend.memory.postgres import get_postgres_saver, get_postgres_store
 from backend.memory.sqlite import get_sqlite_saver, get_sqlite_store
 
 
-def initialize_database() -> AbstractAsyncContextManager[AsyncSqliteSaver | AsyncPostgresSaver | AsyncMongoDBSaver]:
+def initialize_database() -> (
+    AbstractAsyncContextManager[
+        AsyncSqliteSaver | AsyncPostgresSaver | AsyncMongoDBSaver
+    ]
+):
     """
     Initialize the appropriate database checkpointer based on configuration.
     Returns an initialized AsyncCheckpointer instance.

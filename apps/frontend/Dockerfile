@@ -16,5 +16,4 @@ RUN uv sync --frozen --no-install-workspace --package=frontend
 COPY . .
 RUN uv sync --frozen --package=frontend
 
-# use entrypoint from pyproject.toml
-CMD ["uv", "run", "run_app"]
+CMD ["/workspace/.venv/bin/python", "/workspace/apps/frontend/src/frontend/run_app.py"]

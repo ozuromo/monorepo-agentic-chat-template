@@ -31,7 +31,11 @@ logger = logging.getLogger(__name__)
 def verify_bearer(
     http_auth: Annotated[
         HTTPAuthorizationCredentials | None,
-        Depends(HTTPBearer(description="Please provide AUTH_SECRET api key.", auto_error=False)),
+        Depends(
+            HTTPBearer(
+                description="Please provide AUTH_SECRET api key.", auto_error=False
+            )
+        ),
     ],
 ) -> None:
     if not settings.AUTH_SECRET:
@@ -115,7 +119,9 @@ async def _handle_input(user_input: UserInput, agent: AgentGraph) -> dict[str, A
 
     # Check for interrupts that need to be resumed
     state = await agent.aget_state(config=config)
-    interrupted_tasks = [task for task in state.tasks if hasattr(task, "interrupts") and task.interrupts]
+    interrupted_tasks = [
+        task for task in state.tasks if hasattr(task, "interrupts") and task.interrupts
+    ]
 
     input: Command | dict[str, Any]
     if interrupted_tasks:
@@ -158,7 +164,9 @@ def history(input: ChatHistoryInput) -> AgentOutput:
     # TODO: Hard-coding DEFAULT_AGENT here is wonky
     agent: AgentGraph = get_agent(DEFAULT_AGENT)
     try:
-        state_snapshot = agent.get_state(config=RunnableConfig(configurable={"thread_id": input.thread_id}))
+        state_snapshot = agent.get_state(
+            config=RunnableConfig(configurable={"thread_id": input.thread_id})
+        )
         return AgentOutput(
             messages=state_snapshot.values.get("messages", []),
             custom_data=state_snapshot.values.get("custom_data", {}),
@@ -177,7 +185,9 @@ async def health_check():
     if settings.LANGFUSE_TRACING:
         try:
             langfuse = Langfuse()
-            health_status["langfuse"] = "connected" if langfuse.auth_check() else "disconnected"
+            health_status["langfuse"] = (
+                "connected" if langfuse.auth_check() else "disconnected"
+            )
         except Exception as e:
             logger.error(f"Langfuse connection error: {e}")
             health_status["langfuse"] = "disconnected"

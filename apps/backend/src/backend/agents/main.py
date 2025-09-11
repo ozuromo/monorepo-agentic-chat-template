@@ -27,4 +27,7 @@ def get_agent(agent_id: str) -> AgentGraph:
 
 
 def get_all_agent_info() -> list[AgentInfo]:
-    return [AgentInfo(key=agent_id, description=agent.description) for agent_id, agent in agents.items()]
+    return [
+        AgentInfo(key=agent_id, description=agent.description)
+        for agent_id, agent in agents.items()
+    ]

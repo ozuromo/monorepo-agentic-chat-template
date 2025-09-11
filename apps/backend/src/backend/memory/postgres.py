@@ -30,7 +30,10 @@ def validate_postgres_config() -> None:
             "These environment variables must be set to use PostgreSQL persistence."
         )
 
-    if settings.POSTGRES_MIN_CONNECTIONS_PER_POOL > settings.POSTGRES_MAX_CONNECTIONS_PER_POOL:
+    if (
+        settings.POSTGRES_MIN_CONNECTIONS_PER_POOL
+        > settings.POSTGRES_MAX_CONNECTIONS_PER_POOL
+    ):
         raise ValueError(
             f"POSTGRES_MIN_CONNECTIONS_PER_POOL ({settings.POSTGRES_MIN_CONNECTIONS_PER_POOL}) must be less than \
                 or equal to POSTGRES_MAX_CONNECTIONS_PER_POOL ({settings.POSTGRES_MAX_CONNECTIONS_PER_POOL})"

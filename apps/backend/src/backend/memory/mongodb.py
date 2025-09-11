@@ -24,7 +24,9 @@ def validate_mongo_config() -> None:
     Raises ValueError if any required configuration is missing.
     """
     required_always = ["MONGO_HOST", "MONGO_PORT", "MONGO_DB"]
-    missing_always = [var for var in required_always if not getattr(settings, var, None)]
+    missing_always = [
+        var for var in required_always if not getattr(settings, var, None)
+    ]
     if missing_always:
         raise ValueError(
             f"Missing required MongoDB configuration: {', '.join(missing_always)}. "
@@ -56,4 +58,6 @@ def get_mongo_saver() -> AbstractAsyncContextManager[AsyncMongoDBSaver]:
     validate_mongo_config()
     if settings.MONGO_DB is None:  # for type checking
         raise ValueError("MONGO_DB is not set")
-    return AsyncMongoDBSaver.from_conn_string(get_mongo_connection_string(), db_name=settings.MONGO_DB)
+    return AsyncMongoDBSaver.from_conn_string(
+        get_mongo_connection_string(), db_name=settings.MONGO_DB
+    )

@@ -14,7 +14,9 @@ agent = get_agent(DEFAULT_AGENT)
 
 
 async def run_agent() -> None:
-    inputs: MessagesState = {"messages": [HumanMessage("Find me a recipe for chocolate chip cookies")]}
+    inputs: MessagesState = {
+        "messages": [HumanMessage("Find me a recipe for chocolate chip cookies")]
+    }
     result = await agent.ainvoke(
         input=inputs,
         config=RunnableConfig(configurable={"thread_id": uuid4()}),
