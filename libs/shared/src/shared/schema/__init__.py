@@ -4,6 +4,8 @@ from shared.schema.schema import (
     AgentOutput,
     ChatHistoryInput,
     ServiceMetadata,
+    ThreadListInput,
+    ThreadListOutput,
     UserInput,
 )
 
@@ -14,4 +16,6 @@ __all__ = [
     "AgentOutput",
     "ServiceMetadata",
     "ChatHistoryInput",
+    "ThreadListInput",
+    "ThreadListOutput",
 ]

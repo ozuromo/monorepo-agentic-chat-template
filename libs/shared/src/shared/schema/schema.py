@@ -30,7 +30,7 @@ class ServiceMetadata(BaseModel):
     )
     default_agent: str = Field(
         description="Default agent used when none is specified.",
-        examples=["research-assistant"],
+        examples=["react_agent"],
     )
     default_model: AllModelEnum = Field(
         description="Default model used when none is specified.",
@@ -91,4 +91,24 @@ class ChatHistoryInput(BaseModel):
     thread_id: str = Field(
         description="Thread ID to persist and continue a multi-turn conversation.",
         examples=["847c6285-8fc9-4560-a83f-4e6285809254"],
+    )
+
+
+class ThreadListInput(BaseModel):
+    """Input for listing threads."""
+
+    user_id: str = Field(
+        description="User ID to filter threads.",
+        examples=["847c6285-8fc9-4560-a83f-4e6285809254"],
+    )
+
+
+class ThreadListOutput(BaseModel):
+    """Output for listing threads."""
+
+    threads: list[str] = Field(
+        description="List of thread IDs.",
+        examples=[
+            ["847c6285-8fc9-4560-a83f-4e6285809254"],
+        ],
     )

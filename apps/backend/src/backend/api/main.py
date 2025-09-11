@@ -1,10 +1,12 @@
 import logging
+import sqlite3
 import warnings
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Annotated, Any
 from uuid import uuid4
 
+import psycopg
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from langchain_core._api import LangChainBetaWarning
@@ -14,15 +16,19 @@ from langfuse import Langfuse
 from langfuse.langchain import CallbackHandler
 from langgraph.types import Command
 from shared.core import settings
+from shared.core.settings import DatabaseType
 from shared.schema import (
     AgentOutput,
     ChatHistoryInput,
     ServiceMetadata,
+    ThreadListInput,
+    ThreadListOutput,
     UserInput,
 )
 
 from backend.agents import DEFAULT_AGENT, AgentGraph, get_agent, get_all_agent_info
 from backend.memory import initialize_database, initialize_store
+from backend.memory.postgres import get_postgres_connection_string
 
 warnings.filterwarnings("ignore", category=LangChainBetaWarning)
 logger = logging.getLogger(__name__)
@@ -157,14 +163,14 @@ async def invoke(user_input: UserInput, agent_id: str = DEFAULT_AGENT) -> AgentO
 
 
 @router.post("/history")
-def history(input: ChatHistoryInput) -> AgentOutput:
+async def history(input: ChatHistoryInput) -> AgentOutput:
     """
     Get chat history.
     """
     # TODO: Hard-coding DEFAULT_AGENT here is wonky
     agent: AgentGraph = get_agent(DEFAULT_AGENT)
     try:
-        state_snapshot = agent.get_state(
+        state_snapshot = await agent.aget_state(
             config=RunnableConfig(configurable={"thread_id": input.thread_id})
         )
         return AgentOutput(
@@ -174,6 +180,47 @@ def history(input: ChatHistoryInput) -> AgentOutput:
     except Exception as e:
         logger.error(f"An exception occurred: {e}")
         raise HTTPException(status_code=500, detail="Unexpected error")
+
+
+@router.post("/threads")
+def list_threads(input: ThreadListInput) -> ThreadListOutput:
+    """List all threads for a user, ordered by most recent activity (newest first)."""
+    try:
+        if settings.DATABASE_TYPE == DatabaseType.POSTGRES:
+            conn_string = get_postgres_connection_string()
+            with psycopg.connect(conn_string) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT thread_id
+                        FROM checkpoints 
+                        WHERE metadata->>'user_id' = %s
+                        GROUP BY thread_id
+                        ORDER BY MAX(checkpoint_id) DESC
+                    """,
+                        (input.user_id,),
+                    )
+                    return ThreadListOutput(
+                        threads=[row[0] for row in cursor.fetchall()]
+                    )
+        else:
+            # Use SQLite connection (default)
+            with sqlite3.connect(settings.SQLITE_DB_PATH) as conn:
+                cursor = conn.execute(
+                    """
+                    SELECT thread_id
+                    FROM checkpoints 
+                    WHERE json_extract(metadata, '$.user_id') = ?
+                    GROUP BY thread_id
+                    ORDER BY MAX(checkpoint_id) DESC
+                """,
+                    (input.user_id,),
+                )
+                return ThreadListOutput(threads=[row[0] for row in cursor.fetchall()])
+
+    except Exception as e:
+        logger.error(f"An exception occurred while listing threads1: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list threads")
 
 
 @app.get("/health")
@@ -193,6 +240,11 @@ async def health_check():
             health_status["langfuse"] = "disconnected"
 
     return health_status
+
+
+@app.get("/")
+async def read_root():
+    return {"message": "FastAPI is running!"}
 
 
 app.include_router(router)
