@@ -8,10 +8,10 @@ def get_joke() -> str:
     """Uma tool que retorna uma piada engraçada."""
     return """
 A professora pergunta para a turma:
-– Se algum de vocês acha que é burro, fique de pé.
+- Se algum de vocês acha que é burro, fique de pé.
 Todos ficam parados por alguns segundos, até que Joãozinho se levanta.
-– Você se acha burro, Joãozinho?
-– Não, mas fiquei com dó de ver a senhora em pé sozinha.
+- Você se acha burro, Joãozinho?
+- Não, mas fiquei com dó de ver a senhora em pé sozinha.
 """.strip()
 
 

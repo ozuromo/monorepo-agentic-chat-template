@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from langgraph.graph.state import CompiledStateGraph
 from shared.schema import AgentInfo
 
-from backend.agents.example.react_agent import agent
+from .example import agent as react_agent
 
 DEFAULT_AGENT = "react_agent"
 
@@ -18,7 +18,7 @@ class Agent:
 
 
 agents: dict[str, Agent] = {
-    "react_agent": Agent(description="A React-based agent", graph=agent),
+    "react_agent": Agent(description="A React-based agent", graph=react_agent),
 }
 
 
