@@ -20,6 +20,7 @@ dependencies = []
 
 [dependency-groups]
 dev = [
+	"langgraph-cli[inmem]>=0.3.6",
     "poethepoet>=0.32.0",
     "pytest >= 8.3.4",
     "ruff >= 0.8.5",
