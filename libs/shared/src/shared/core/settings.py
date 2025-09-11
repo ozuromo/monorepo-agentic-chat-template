@@ -5,7 +5,6 @@ from typing import Annotated, Any
 from dotenv import find_dotenv
 from pydantic import (
     BeforeValidator,
-    Field,
     HttpUrl,
     SecretStr,
     TypeAdapter,
@@ -121,10 +120,11 @@ class Settings(BaseSettings):
     # Azure OpenAI Settings
     AZURE_OPENAI_API_KEY: SecretStr | None = None
     AZURE_OPENAI_ENDPOINT: str | None = None
-    AZURE_OPENAI_API_VERSION: str = "2024-02-15-preview"
-    AZURE_OPENAI_DEPLOYMENT_MAP: dict[str, str] = Field(
-        default_factory=dict, description="Map of model names to Azure deployment IDs"
-    )
+    AZURE_OPENAI_API_VERSION: str = "2024-10-21"
+    AZURE_OPENAI_DEPLOYMENT_MAP: dict[str, str] = {
+        "azure-gpt-4o": "gpt-4o",
+        "azure-gpt-4o-mini": "gpt-4o-mini",
+    }
 
     def model_post_init(self, __context: Any) -> None:
         api_keys = {
@@ -214,16 +214,6 @@ class Settings(BaseSettings):
                             raise ValueError(
                                 f"Invalid AZURE_OPENAI_DEPLOYMENT_MAP JSON: {e}"
                             )
-
-                    # Validate required deployments exist
-                    required_models = {"gpt-4o", "gpt-4o-mini"}
-                    missing_models = required_models - set(
-                        self.AZURE_OPENAI_DEPLOYMENT_MAP.keys()
-                    )
-                    if missing_models:
-                        raise ValueError(
-                            f"Missing required Azure deployments: {missing_models}"
-                        )
                 case _:
                     raise ValueError(f"Unknown provider: {provider}")
 
